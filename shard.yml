@@ -1,0 +1,19 @@
+name: butter
+version: 0.1.0
+
+authors:
+  - Georg Gadinger <nilsding@nilsding.org>
+
+targets:
+  butter:
+    main: src/main.cr
+
+dependencies:
+  crest:
+    github: mamantoha/crest
+  secrets:
+    github: faustinoaq/secrets
+
+crystal: 0.27.0
+
+license: MIT

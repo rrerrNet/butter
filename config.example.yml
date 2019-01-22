@@ -1,0 +1,10 @@
+---
+homeserver: "https://matrix.org"
+
+# List of rooms where bot functionality is enabled.
+# This needs to be the "internal room ID" (i.e. the one starting with !)
+enabled_rooms:
+  - "!abcdefghijklmnopqr:example.org"
+
+# Use this prefix for commands.
+prefix: "!"
