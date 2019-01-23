@@ -2,9 +2,14 @@ require "logger"
 require "option_parser"
 require "secrets"
 
+require "./connection/sqlite"
 require "./configuration"
 require "./bot/bot"
 require "./matrix/client"
+
+require "micrate"
+# a horrible little hack to make micrate use custom ARGV
+Micrate::Cli::ARGV = [] of String
 
 module Butter
   VERSION = "0.1.0"
@@ -35,6 +40,7 @@ module Butter
     @@config = Configuration.from_yaml({{ run("./macro_utils/read", __DIR__, "../../config.example.yml").stringify }})
     @@config_set = false
     @@bot = Bot::Bot.new
+    @@micrate = false
 
     def initialize(@argv : Array(String)); end
 
@@ -45,6 +51,9 @@ module Butter
         parser.on("-c CONFIG", "--config CONFIG", "Read configuration from this file") do |config_path|
           @@config = Configuration.from_yaml(File.read(config_path))
           @@config_set = true
+        end
+        parser.on("-m", "--micrate", "Run micrate") do |micrate|
+          @@micrate = true
         end
         parser.on("-h", "--help", "Show this help") do
           puts parser
@@ -66,42 +75,53 @@ module Butter
         exit 1
       end
 
+      return do_micrate(@argv) if @@micrate
+
       @@bot = Bot::Bot.new
 
-      # TODO: store those things in a database, maybe?
-      unless ENV.has_key?("MATRIX_ACCESS_TOKEN")
-        puts "Performing first time login on #{@@config.homeserver}"
-        print "Username: "
-        username = gets
-        if username.nil?
-          puts "Oopsie woopsie uwu"
-          exit 1
-        end
-        username = username.not_nil!.strip
-        password = Secrets.gets("Password: ")
-
-        ok, response = Matrix::Client.new(@@config.homeserver).login(username, password)
-
-        unless ok
-          puts "Oopsie woopsie uwu"
-          exit 1
-        end
-
-        access_token = response.not_nil!.access_token
-
-        puts
-        puts "Your access token is: #{access_token}"
-        puts
-        puts "Please place it in your ENV like this:"
-        puts "   setenv MATRIX_ACCESS_TOKEN #{access_token.inspect}"
-        puts "                            ----- or -----"
-        puts "   export MATRIX_ACCESS_TOKEN=#{access_token.inspect}"
-        puts
-
-        exit
-      end
+      return do_matrix_login unless ENV.has_key?("MATRIX_ACCESS_TOKEN")
 
       @@bot.run
+    end
+
+    private def do_micrate(@argv)
+      Micrate::Cli::ARGV.clear
+      Micrate::Cli::ARGV.concat(@argv)
+      Micrate::DB.connection_url = "sqlite3://" + Connection::Sqlite.config.database
+      Micrate::Cli.run
+    end
+
+    private def do_matrix_login
+      # TODO: store those things in a database, maybe?
+      puts "Performing first time login on #{@@config.homeserver}"
+      print "Username: "
+      username = gets
+      if username.nil?
+        puts "Oopsie woopsie uwu"
+        exit 1
+      end
+      username = username.not_nil!.strip
+      password = Secrets.gets("Password: ")
+
+      ok, response = Matrix::Client.new(@@config.homeserver).login(username, password)
+
+      unless ok
+        puts "Oopsie woopsie uwu"
+        exit 1
+      end
+
+      access_token = response.not_nil!.access_token
+
+      puts
+      puts "Your access token is: #{access_token}"
+      puts
+      puts "Please place it in your ENV like this:"
+      puts "   setenv MATRIX_ACCESS_TOKEN #{access_token.inspect}"
+      puts "                            ----- or -----"
+      puts "   export MATRIX_ACCESS_TOKEN=#{access_token.inspect}"
+      puts
+
+      exit
     end
   end
 end

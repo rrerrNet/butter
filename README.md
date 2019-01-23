@@ -2,7 +2,10 @@
 
 A dumb Matrix bot.  May contain traces of nuts.
 
-Does nothing useful for now, except for responding to `!ping` requests \\o/
+It can do the following:
+
+- Respond to `!ping` requests! \\o/
+- Maintain a database of quotes (using `!quoteadd`/`!qa` and `!quote`/`!q`)
 
 ## Installation
 
@@ -30,10 +33,13 @@ setenv PKG_CONFIG_PATH /usr/local/opt/openssl/lib/pkgconfig
 ## Usage
 
 Copy the `config.example.yml` to `config.yml` and modify it to your needs.
-Then... just run it! (after you've built it of course, see _Installation_
-section above on how to do that)
+Then... initialize the database and just run it! (after you've built it of
+course, see _Installation_ section above on how to do that)
 
 ```sh
+# Create the initial database
+./bin/butter -c config.yml -m up
+
 # Authenticate with your home server for the first time
 ./bin/butter -c config.yml
 

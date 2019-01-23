@@ -1,3 +1,5 @@
+require "markdown"
+
 require "./event_context"
 require "./event_handler"
 
@@ -61,6 +63,26 @@ module Butter
             "msgtype" => "m.text",
             "body"    => text,
           }
+        )
+      end
+
+      def send_message(room : String, text : String, formatted_text : String)
+        send_message(
+          room: room,
+          content: {
+            "msgtype"        => "m.text",
+            "body"           => text,
+            "format"         => "org.matrix.custom.html",
+            "formatted_body" => formatted_text,
+          }
+        )
+      end
+
+      def send_markdown(room : String, markdown : String)
+        send_message(
+          room: room,
+          text: markdown,
+          formatted_text: Markdown.to_html(markdown)
         )
       end
 
