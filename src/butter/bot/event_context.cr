@@ -1,4 +1,4 @@
-require "../../matrix/entities/sync_response"
+require "../matrix/entities/sync_response"
 
 module Butter
   module Bot

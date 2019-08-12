@@ -1,5 +1,5 @@
 require "./base"
-require "../../../application"
+require "../../application"
 
 module Butter
   module Bot

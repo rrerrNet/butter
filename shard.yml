@@ -15,13 +15,13 @@ dependencies:
     github: faustinoaq/secrets
 
   # database stuffz
-  crecto:
-    github: fridgerator/crecto
+  granite:
+    github: amberframework/granite
   sqlite3:
     github: crystal-lang/crystal-sqlite3
   micrate:
     github: amberframework/micrate
 
-crystal: 0.27.0
+crystal: 0.30.0
 
 license: MIT

@@ -15,9 +15,8 @@ module Butter
           def call
             id = id_from_payload_or_random_id_from_tag || fetch_random_id
 
-            quote = Connection::Sqlite.get(Model::Quote, id)
+            quote = Model::Quote.find(id)
             return quote_not_found(id) unless quote
-            quote = quote.as(Model::Quote)
             return quote_not_found(id) unless quote.content || quote.added_by
 
             bot.send_message(
@@ -53,13 +52,9 @@ module Butter
           end
 
           private def fetch_random_id(tag : String? = nil)
-            query = Connection::Sqlite::Query
-              .select(["id"])
-              .where(deleted_at: nil)
-            query.where("LOWER(tag) = ?", [tag.strip.downcase]) if tag
-            ids = Connection::Sqlite
-              .all(Model::Quote, query)
-              .map(&.id)
+            query = Model::Quote.where(deleted_at: nil)
+            query.where("LOWER(tag)", :eq, tag.strip.downcase) if tag
+            ids = query.map(&.id)
             return if ids.empty?
             ids.sample(random: Random::Secure)
           end

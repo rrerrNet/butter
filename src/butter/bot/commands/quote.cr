@@ -1,4 +1,3 @@
-require "../../connection/sqlite"
 require "../../model/quote"
 
 require "./quote/add"

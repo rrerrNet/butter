@@ -2,7 +2,9 @@ require "logger"
 require "option_parser"
 require "secrets"
 
-require "./connection/sqlite"
+require "granite"
+Granite::Connections << Granite::Adapter::Sqlite.new(name: "butterdb", url: "sqlite3://" + File.expand_path("~/.butterdb"))
+
 require "./configuration"
 require "./bot/bot"
 require "./matrix/client"
@@ -77,6 +79,8 @@ module Butter
 
       return do_micrate(@argv) if @@micrate
 
+      Granite.settings.logger = Application.logger
+
       @@bot = Bot::Bot.new
 
       return do_matrix_login unless ENV.has_key?("MATRIX_ACCESS_TOKEN")
@@ -87,7 +91,7 @@ module Butter
     private def do_micrate(@argv)
       Micrate::Cli::ARGV.clear
       Micrate::Cli::ARGV.concat(@argv)
-      Micrate::DB.connection_url = "sqlite3://" + Connection::Sqlite.config.database
+      Micrate::DB.connection_url = "sqlite3://" + File.expand_path("~/.butterdb")
       Micrate::Cli.run
     end
 

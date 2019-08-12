@@ -16,15 +16,15 @@ module Butter
 
             Application.logger.debug("tag: #{tag.inspect}, content: #{content.inspect}")
 
-            quote = Model::Quote.new
-            quote.tag = tag
-            quote.content = content
-            quote.added_by = event.sender
-            changeset = Connection::Sqlite.insert(quote)
+            quote = Model::Quote.create!(
+              tag: tag,
+              content: content,
+              added_by: event.sender
+            )
 
             bot.send_markdown(
               room: event_context.room,
-              markdown: format_message(changeset.instance.id, tag)
+              markdown: format_message(quote.id, tag)
             )
 
             true

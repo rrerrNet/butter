@@ -1,15 +1,19 @@
-require "crecto"
+require "granite/adapter/sqlite"
 
 module Butter
   module Model
-    class Quote < Crecto::Model
-      schema "quotes" do
-        field :tag, String
-        field :content, String
-        field :added_by, String
+    class Quote < Granite::Base
+      connection butterdb
+      table quotes
 
-        field :deleted_at, Time
-      end
+      column id : Int64, primary: true
+      column tag : String?
+      column content : String
+      column added_by : String
+
+      column created_at : Time
+      column updated_at : Time
+      column deleted_at : Time?
     end
   end
 end
